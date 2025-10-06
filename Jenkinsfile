@@ -1,13 +1,12 @@
 pipeline {
-    agent {
-        docker { image 'node:20' } // image resmi node dengan npm terinstall
-    }
+    agent any
     stages {
         stage("Checkout") {
             steps { checkout scm }
         }
         stage("Test") {
             steps {
+                sh 'npm install'
                 sh 'npm test'
             }
         }
