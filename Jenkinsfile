@@ -1,20 +1,60 @@
 pipeline {
-    agent any
-    stages {
-        stage("Checkout") {
-            steps { checkout scm }
+    agent {
+        kubernetes {
+            yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: cicd-demo
+spec:
+  containers:
+  - name: node
+    image: node:20
+    command:
+    - cat
+    tty: true
+  - name: docker
+    image: docker:25.0.2-dind
+    securityContext:
+      privileged: true
+    tty: true
+"""
+            defaultContainer 'node'
         }
-        stage("Test") {
+    }
+
+    stages {
+        stage('Checkout') {
             steps {
-                sh 'npm install'
-                sh 'npm test'
+                checkout scm
             }
         }
-        stage("Build") {
-            steps { sh 'npm run build' }
+
+        stage('Install & Test') {
+            steps {
+                container('node') {
+                    sh 'npm install'
+                    sh 'npm test'
+                }
+            }
         }
-        stage("Build Image") {
-            steps { sh 'docker build -t CICD-Demo:1.0 .' }
+
+        stage('Build') {
+            steps {
+                container('node') {
+                    sh 'npm run build'
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                container('docker') {
+                    sh 'docker version'
+                    sh 'docker build -t cicd-demo:1.0 .'
+                }
+            }
         }
     }
 }
