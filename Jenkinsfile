@@ -1,8 +1,13 @@
 pipeline {
-  agent any
+  agent {
+    docker { 
+      image 'node:20' 
+      args '-v /var/run/docker.sock:/var/run/docker.sock'
+    }
+  }
 
   environment {
-    IMAGE_NAME = 'wilsonnn06/cicd-demo'
+    IMAGE_NAME = 'wilsonnn06/CICD-Demo'
     IMAGE_TAG = "${env.BUILD_NUMBER}"
   }
 
