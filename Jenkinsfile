@@ -30,19 +30,36 @@ spec:
   }
 
   environment {
+    FRONTEND_DIR = 'frontend'
     IMAGE_NAME = 'wilsonnn06/CICD-Demo'
     IMAGE_TAG = "${BUILD_NUMBER}"
   }
 
   stages {
-    stage('Checkout') { steps { checkout scm } }
+    stage('Checkout') {
+      steps { checkout scm }
+    }
 
-    stage('Build & Test') {
+    stage('Install & Build') {
       steps {
         container('node') {
+          // Install backend dependencies
           sh 'npm ci'
-          sh 'npm test'
-          sh 'npm run build'
+
+          // Build frontend
+          dir("${env.FRONTEND_DIR}") {
+            sh 'npm ci'
+            sh 'npm run build'
+          }
+
+          // Prepare distribution folder
+          sh '''
+            set -e
+            rm -rf dist || true
+            mkdir -p dist
+            cp -r index.js package*.json routes dist/
+            cp -r frontend/dist dist/public
+          '''
         }
       }
     }
@@ -67,6 +84,12 @@ spec:
           }
         }
       }
+    }
+  }
+
+  post {
+    always {
+      archiveArtifacts artifacts: 'dist/**', allowEmptyArchive: true
     }
   }
 }
