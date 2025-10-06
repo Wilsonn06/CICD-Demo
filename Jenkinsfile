@@ -15,10 +15,17 @@ spec:
     - cat
     tty: true
   - name: docker
-    image: docker:25.0.2-dind
-    securityContext:
-      privileged: true
+    image: docker:25.0
+    command:
+    - cat
     tty: true
+    volumeMounts:
+    - name: docker-sock
+        mountPath: /var/run/docker.sock
+  volumes:
+  - name: docker-sock
+    hostPath:
+      path: /var/run/docker.sock
 """
             defaultContainer 'node'
         }
