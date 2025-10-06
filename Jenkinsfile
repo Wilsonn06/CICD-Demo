@@ -19,5 +19,9 @@ pipeline {
         sh 'npm run build'
       }
     }
+
+    stage("Build Image"){
+      steps{
+        sh 'build docker -t CICD-Demo:1.0 .'
   }
 }
