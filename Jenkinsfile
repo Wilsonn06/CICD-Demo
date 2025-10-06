@@ -53,7 +53,7 @@ spec:
             steps {
                 container('docker') {
                     sh 'docker version'
-                    sh 'docker build -t cicd-demo:1.0 .'
+                    sh "docker build -t wilsonnn06/cicd-demo:1.0 ."
                 }
             }
         }
