@@ -35,6 +35,7 @@ spec:
             steps {
                 container('node') {
                     sh 'npm install'
+                    sh 'chmod +x node_modules/.bin/mocha'
                     sh 'npx mocha'
                 }
             }
