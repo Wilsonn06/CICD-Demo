@@ -1,26 +1,21 @@
 pipeline {
-    agent any
+    agent {
+        docker { image 'node:20' } // image resmi node dengan npm terinstall
+    }
     stages {
         stage("Checkout") {
-            steps {
-                checkout scm
-            }
+            steps { checkout scm }
         }
         stage("Test") {
             steps {
-                sh 'sudo apt install npm -y'
                 sh 'npm test'
             }
         }
         stage("Build") {
-            steps {
-                sh 'npm run build'
-            }
+            steps { sh 'npm run build' }
         }
         stage("Build Image") {
-            steps {
-                sh 'docker build -t CICD-Demo:1.0 .'
-            }
+            steps { sh 'docker build -t CICD-Demo:1.0 .' }
         }
     }
 }
