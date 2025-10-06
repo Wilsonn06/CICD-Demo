@@ -57,7 +57,6 @@ spec:
             set -e
             rm -rf dist || true
             mkdir -p dist
-            cp -r index.js package*.json routes dist/
             cp -r frontend/dist dist/public
           '''
         }
