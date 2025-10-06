@@ -21,7 +21,7 @@ spec:
     tty: true
     volumeMounts:
     - name: docker-sock
-        mountPath: /var/run/docker.sock
+      mountPath: /var/run/docker.sock   # ← perbaikan di sini (hapus 2 spasi ekstra)
   volumes:
   - name: docker-sock
     hostPath:
