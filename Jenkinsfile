@@ -58,13 +58,20 @@ spec:
             }
         }
 
-        stage('Docker Push'){
-            steps{
-                withCredentials([usernamePassword(credentialsId: 'docker_cred' , passwordVariable: 'DOCKERHUB_PASSWORD' , usernameVariable: 'DOCKERHUB_USERNAME')]){
-                    sh 'docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD'
-                    sh 'docker tag cicd-demo:1.0 wilsonnn06/cicd-demo:1.0'
-                    sh 'docker push wilsonnn06/cicd-demo:1.0'
-                    sh 'docker logout'
+        stage('Docker Push') {
+            steps {
+                container('docker') {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'docker_pat', 
+                        usernameVariable: 'DOCKERHUB_USERNAME', 
+                        passwordVariable: 'DOCKERHUB_TOKEN'
+                    )]) {
+                        sh '''
+                            echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                            docker push wilsonnn06/cicd-demo:1.0
+                            docker logout
+                        '''
+                    }
                 }
             }
         }
