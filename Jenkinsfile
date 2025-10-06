@@ -62,7 +62,7 @@ spec:
             steps {
                 container('docker') {
                     withCredentials([usernamePassword(
-                        credentialsId: 'docker_pat', 
+                        credentialsId: 'dockerhub-cred', 
                         usernameVariable: 'DOCKERHUB_USERNAME', 
                         passwordVariable: 'DOCKERHUB_TOKEN'
                     )]) {
