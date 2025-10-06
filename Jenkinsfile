@@ -1,44 +1,70 @@
 pipeline {
   agent {
-    docker { image 'node:20' } // Node.js + npm sudah ada di image ini
+    kubernetes {
+      label 'nodejs-docker'
+      defaultContainer 'node'
+      yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: node
+    image: node:20
+    command:
+    - cat
+    tty: true
+  - name: docker
+    image: docker:25
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - name: docker-sock
+      mountPath: /var/run/docker.sock
+  volumes:
+  - name: docker-sock
+    hostPath:
+      path: /var/run/docker.sock
+"""
+    }
   }
 
   environment {
-    IMAGE_NAME = 'wilsonnn06/CICD-Demo'
+    IMAGE_NAME = 'wilsonnn06/enduser-app'
     IMAGE_TAG = "${BUILD_NUMBER}"
   }
 
   stages {
-    stage('Checkout') {
-      steps { checkout scm }
-    }
+    stage('Checkout') { steps { checkout scm } }
 
-    stage('Install deps & Test') {
+    stage('Build & Test') {
       steps {
-        sh 'npm ci'
-        sh 'npm test'
+        container('node') {
+          sh 'npm ci'
+          sh 'npm test'
+          sh 'npm run build'
+        }
       }
-    }
-
-    stage('Build') {
-      steps { sh 'npm run build' }
     }
 
     stage('Build Docker Image') {
       steps {
-        // perhatikan: image 'node:20' tidak punya docker cli
-        sh "docker build -t $IMAGE_NAME:$IMAGE_TAG ."
+        container('docker') {
+          sh "docker build -t $IMAGE_NAME:$IMAGE_TAG ."
+        }
       }
     }
 
     stage('Push Docker Image') {
       steps {
-        withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-          sh """
-            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-            docker push $IMAGE_NAME:$IMAGE_TAG
-            docker logout
-          """
+        container('docker') {
+          withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+            sh """
+              echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+              docker push $IMAGE_NAME:$IMAGE_TAG
+              docker logout
+            """
+          }
         }
       }
     }
