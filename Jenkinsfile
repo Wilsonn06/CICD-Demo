@@ -68,7 +68,7 @@ spec:
                     )]) {
                         sh '''
                             echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-                            docker push wilsonnn06/cicd-demo:1.0
+                            docker push $IMAGE_NAME:$IMAGE_TAG
                             docker logout
                         '''
                     }
