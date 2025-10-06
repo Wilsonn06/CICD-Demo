@@ -30,7 +30,7 @@ spec:
   }
 
   environment {
-    IMAGE_NAME = 'wilsonnn06/enduser-app'
+    IMAGE_NAME = 'wilsonnn06/CICD-Demo'
     IMAGE_TAG = "${BUILD_NUMBER}"
   }
 
