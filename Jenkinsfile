@@ -1,16 +1,16 @@
 pipeline {
-  agent any
+  agent {
+    docker { image 'node:20' } // Node.js + npm sudah ada di image ini
+  }
 
   environment {
     IMAGE_NAME = 'wilsonnn06/enduser-app'
-    IMAGE_TAG = "${env.BUILD_NUMBER}" // tag unik tiap build
+    IMAGE_TAG = "${BUILD_NUMBER}"
   }
 
   stages {
     stage('Checkout') {
-      steps {
-        checkout scm
-      }
+      steps { checkout scm }
     }
 
     stage('Install deps & Test') {
@@ -20,15 +20,13 @@ pipeline {
       }
     }
 
-    stage('Build frontend/backend') {
-      steps {
-        sh 'npm run build'
-      }
+    stage('Build') {
+      steps { sh 'npm run build' }
     }
 
     stage('Build Docker Image') {
       steps {
-        // pastikan docker cli tersedia di agent ini
+        // perhatikan: image 'node:20' tidak punya docker cli
         sh "docker build -t $IMAGE_NAME:$IMAGE_TAG ."
       }
     }
