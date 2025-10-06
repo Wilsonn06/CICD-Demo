@@ -35,7 +35,7 @@ spec:
             steps {
                 container('node') {
                     sh 'npm install'
-                    sh 'npm test'
+                    sh 'npx mocha'
                 }
             }
         }
